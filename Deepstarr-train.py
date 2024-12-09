@@ -10,7 +10,7 @@ import keras_nlp
 import keras.layers as kl
 from keras.layers import Conv1D, MaxPooling1D, AveragePooling1D
 from keras_nlp.layers import SinePositionEncoding, TransformerEncoder
-from keras.layers import BatchNormalization, InputLayer
+from keras.layers import BatchNormalization
 from keras.models import Sequential, Model, load_model
 from keras.optimizers import Adam
 from keras.callbacks import EarlyStopping, History, ModelCheckpoint
@@ -68,17 +68,15 @@ def prepare_input(data_set, params):
 
 def DeepSTARR(params):
     if params['encode'] == 'one-hot':
-        inputLayer = kl.Input(shape=(249, 4)) 
+        input = kl.Input(shape=(249, 4)) 
     elif params['encode'] == 'k-mer':
-        inputLayer = kl.Input(shape=(1, 64)) 
-   
-    x = inputLayer
+        input = kl.Input(shape=(1, 64)) 
 
     for i in range(params['convolution_layers']['n_layers']):
         x = kl.Conv1D(params['convolution_layers']['filters'][i],
                       kernel_size = params['convolution_layers']['kernel_sizes'][i],
                       padding = params['pad'],
-                      name=str('Conv1D_'+str(i+1)))(x)
+                      name=str('Conv1D_'+str(i+1)))(input)
         x = kl.BatchNormalization()(x)
         x = kl.Activation('relu')(x)
         if params['encode'] == 'one-hot':
@@ -118,7 +116,7 @@ def DeepSTARR(params):
         outputs.append(kl.Dense(1, activation='linear', name=str('Dense_' + task))(bottleneck))
     
     # Build Keras model object
-    model = Model([inputLayer], outputs)
+    model = Model([input], outputs)
     model.compile(Adam(learning_rate=params['lr']), # Adam optimizer
                   loss=['mse', 'mse'], # loss is Mean Squared Error (MSE)
                   loss_weights=[1, 1]) # in case we want to change the weights of each output. For now keep them with same weights
