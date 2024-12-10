@@ -10,12 +10,9 @@ conda activate re-deepstarr
 
 ## To train re-implemented DeepSTARR model, run commands:
 
-### download dataset
 ```
+mkdir data
 wget -P data https://data.starklab.org/almeida/DeepSTARR/Tutorial/Sequences_activity_all.txt
-```
-### make your output directory
-```
 mkdir outputs 
 python Deepstarr-train.py config/config-baseline.json data/Sequences_activity_all.txt outputs baseline
 ```
